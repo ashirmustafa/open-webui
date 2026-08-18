@@ -78,10 +78,12 @@
 	import FolderModal from './Sidebar/Folders/FolderModal.svelte';
 	import PinnedModelList from './Sidebar/PinnedModelList.svelte';
 	import PinnedNoteList from './Sidebar/PinnedNoteList.svelte';
+	import SMTPConfigModal from '../SMTPConfigModal.svelte';
 	import CalendarIcon from './Sidebar/icons/Calendar.svelte';
 	import ClockIcon from './Sidebar/icons/Clock.svelte';
 	import CodeIcon from './Sidebar/icons/Code.svelte';
 	import EditPencilIcon from './Sidebar/icons/EditPencil.svelte';
+	import MailIcon from './Sidebar/icons/Mail.svelte';
 	import NotesIcon from './Sidebar/icons/Notes.svelte';
 	import SearchIcon from './Sidebar/icons/Search.svelte';
 	import Sidebar from '../icons/Sidebar.svelte';
@@ -119,6 +121,7 @@
 	let allChatsLoaded = false;
 
 	let showCreateFolderModal = false;
+	let showSMTPConfigModal = false;
 
 	let pinnedModels = [];
 
@@ -887,6 +890,8 @@
 	}}
 />
 
+<SMTPConfigModal bind:show={showSMTPConfigModal} />
+
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 
 {#if $showSidebar}
@@ -1009,6 +1014,28 @@
 								class=" self-center flex size-[30px] items-center justify-center rounded-lg transition group-hover:bg-gray-50 dark:group-hover:bg-gray-900"
 							>
 								<SearchIcon className="size-4" strokeWidth="1.5" />
+							</div>
+						</button>
+					</Tooltip>
+				</div>
+
+				<div>
+					<Tooltip content={$i18n.t('SMTP Configuration')} placement="right">
+						<button
+							class=" cursor-pointer flex size-8 items-center justify-center transition group"
+							on:click={(e) => {
+								e.stopImmediatePropagation();
+								e.preventDefault();
+
+								showSMTPConfigModal = true;
+							}}
+							draggable="false"
+							aria-label={$i18n.t('SMTP Configuration')}
+						>
+							<div
+								class=" self-center flex size-[30px] items-center justify-center rounded-lg transition group-hover:bg-gray-50 dark:group-hover:bg-gray-900"
+							>
+								<MailIcon className="size-4" strokeWidth="1.5" />
 							</div>
 						</button>
 					</Tooltip>
@@ -1224,6 +1251,26 @@
 								<div class=" self-center text-[13px] leading-5">{$i18n.t('Search')}</div>
 							</div>
 							<HotkeyHint name="search" className=" group-hover:visible invisible" />
+						</button>
+					</div>
+
+					<div class="px-1 flex justify-center text-gray-700 dark:text-gray-300">
+						<button
+							id="sidebar-smtp-config-button"
+							class="group grow flex items-center space-x-2 rounded-xl px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-900 transition outline-none"
+							on:click={() => {
+								showSMTPConfigModal = true;
+							}}
+							draggable="false"
+							aria-label={$i18n.t('SMTP Configuration')}
+						>
+							<div class="self-center flex size-4 shrink-0 items-center justify-center">
+								<MailIcon strokeWidth="1.5" className="size-4" />
+							</div>
+
+							<div class="flex flex-1 self-center translate-y-[0.5px]">
+								<div class=" self-center text-[13px] leading-5">{$i18n.t('SMTP Configuration')}</div>
+							</div>
 						</button>
 					</div>
 
