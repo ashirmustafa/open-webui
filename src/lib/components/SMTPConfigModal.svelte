@@ -3,14 +3,18 @@
 	import { getContext } from 'svelte';
 	const i18n = getContext('i18n');
 
+	import { user } from '$lib/stores';
 	import Modal from '$lib/components/common/Modal.svelte';
 	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
 	import Switch from '$lib/components/common/Switch.svelte';
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import XMark from '$lib/components/icons/XMark.svelte';
 
-	// UI only for now — wiring this up to a backend/n8n is a follow-up once the
-	// storage/send logic is decided. Submitting just closes the modal.
+	// Submitting POSTs the form to an n8n webhook, which upserts the row into
+	// the `smtp_credentials` Postgres table (created manually via pgAdmin —
+	// this never touches Open WebUI's own backend).
+	const SMTP_WEBHOOK_URL = 'https://n8n.aixinnovation.net/webhook/smtp-config';
+
 	export let onSubmit: Function = () => {};
 
 	export let show = false;
@@ -50,21 +54,45 @@
 			return;
 		}
 
+		if (!$user?.email) {
+			toast.error($i18n.t('You must be logged in to save SMTP settings'));
+			return;
+		}
+
 		loading = true;
 
-		await onSubmit({
+		const payload = {
+			user_email: $user.email,
 			host,
 			port,
 			username,
 			password,
 			from_address: fromAddress,
 			use_tls: useTLS
-		});
+		};
 
-		loading = false;
-		show = false;
+		try {
+			const res = await fetch(SMTP_WEBHOOK_URL, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload)
+			});
 
-		resetForm();
+			if (!res.ok) {
+				throw new Error(`Webhook responded with ${res.status}`);
+			}
+
+			await onSubmit(payload);
+
+			toast.success($i18n.t('SMTP configuration saved'));
+			show = false;
+			resetForm();
+		} catch (err) {
+			console.error('Failed to save SMTP configuration', err);
+			toast.error($i18n.t('Failed to save SMTP configuration'));
+		} finally {
+			loading = false;
+		}
 	};
 </script>
 
