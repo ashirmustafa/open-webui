@@ -10,9 +10,6 @@
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import XMark from '$lib/components/icons/XMark.svelte';
 
-	// Submitting POSTs the form to an n8n webhook, which upserts the row into
-	// the `smtp_credentials` Postgres table (created manually via pgAdmin —
-	// this never touches Open WebUI's own backend).
 	const SMTP_WEBHOOK_URL = 'https://n8n.aixinnovation.net/webhook/smtp-config';
 
 	export let onSubmit: Function = () => {};
